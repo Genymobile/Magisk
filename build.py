@@ -673,6 +673,14 @@ def setup_avd():
     if proc.returncode != 0:
         error("live_setup.sh failed!")
 
+def setup_genymotion():
+    header("* Setting up Genymotion device")
+
+    push_files(Path("scripts", "genymotion_setup.sh"))
+
+    proc = execv([adb_path, "shell", "sh", "/data/local/tmp/genymotion_setup.sh"])
+    if proc.returncode != 0:
+        error("genymotion_setup.sh failed!")
 
 def patch_avd_file():
     input = Path(args.image)
@@ -846,6 +854,12 @@ def parse_args():
         "-b", "--build", action="store_true", help="build before patching"
     )
 
+    genymotion_parser = subparsers.add_parser("genymotion", help="Install Magisk in a Genymotion device")
+    genymotion_parser.add_argument("--apk", help="a Magisk APK to use")
+    genymotion_parser.add_argument(
+        "-b", "--build", action="store_true", help="build before patching"
+    )
+
     avd_patch_parser = subparsers.add_parser(
         "avd_patch", help="patch AVD ramdisk.img or init_boot.img"
     )
@@ -891,6 +905,7 @@ def parse_args():
     stub_parser.set_defaults(func=build_stub)
     test_parser.set_defaults(func=build_test)
     emu_parser.set_defaults(func=setup_avd)
+    genymotion_parser.set_defaults(func=setup_genymotion)
     avd_patch_parser.set_defaults(func=patch_avd_file)
     clean_parser.set_defaults(func=cleanup)
     ndk_parser.set_defaults(func=setup_ndk)
